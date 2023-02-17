@@ -4,34 +4,22 @@ import java.util.Stack;
 
 public class Main {
 
-    //Вывод приоритета оператора
-    private static int getPriority(char operator)
-    {
-        switch(operator) {
-            case '+', '-' :
-                return 1;
-            case '*','/' :
-                return 2;
-        }
-        return 0;
-    }
-
-    private static Integer getResult(Integer number1, Integer number2, char operator)
+    private static Integer getResult(Integer number1, Integer number2, String operator)
     {
         switch (operator) {
-            case '+':
+            case "+":
                 return number2 + number1;
-            case '-':
+            case "-":
                 return number2 - number1;
-            case '*':
+            case "*":
                 return number2 * number1;
-            case '/':
+            case "/":
                 return number2 / number1;
         }
         return 0;
     }
 
-    private static StackHolder makeOperation(Stack<Integer> stackNumbers, Stack<Character> stackOperations, char operation)
+    private static StackHolder makeOperation(Stack<Integer> stackNumbers, Stack<String> stackOperations, String operation)
     {
         int numb1 = stackNumbers.pop();
         int numb2 = stackNumbers.pop();
@@ -53,70 +41,58 @@ public class Main {
             Scanner in = new Scanner(System.in, "UTF-8");
             example = in.nextLine();
 
-            Character[] operators = {'+', '-', '/', '*'};
-            Character[] brackets = {'(', ')'};
+            String[] operators = {"+", "-", "/", "*"};
+            String[] brackets = {"(", ")"};
             Stack<Integer> stackNumbers = new Stack<Integer>();
-            Stack<Character> stackOperations = new Stack<Character>();
+            Stack<String> stackOperations = new Stack<String>();
 
             example.replace(" ", "");
             StringBuilder strNumber = new StringBuilder();
-            for (char ch : example.toCharArray()) {
-                if (Arrays.asList(operators).contains(ch)
-                        || Arrays.asList(brackets).contains(ch)) {
-
-                    //если до оператора было число, то вставляем его в стек с числами
-                    if (strNumber.toString() != "") {
-                        Integer number = Integer.parseInt(strNumber.toString());
-                        stackNumbers.push(number);
-                        strNumber.setLength(0);
-                    }
+            Parser parser = new Parser(example.toCharArray());
+            Iterator iterator = parser.getIterator();
+            while (iterator.hasNext()) {
+                String lexeme = (String) iterator.next();
+                if (Arrays.asList(operators).contains(lexeme)
+                        || Arrays.asList(brackets).contains(lexeme)) {
 
                     //если приоритет операций одинаковый или приоритет текущей операции ниже
                     //то сначало выполняем действие, которое лежит в стеке
                     //до тех пор, пока в операциях не появится операция приоритетом ниже текущего
                     //или не встретится скобка или конец стека
                     if (!stackOperations.isEmpty()) {
-                        char lastOper = stackOperations.peek();
-                        int lastOperPr = getPriority(lastOper);
-                        int curOperPr = getPriority(ch);
+                        String lastOper = stackOperations.peek();
+                        Priority priority = new Priority(lastOper, lexeme);
                         do {
                             //если приоритет текущей выше, тогда операцию в стек
-                            if ((curOperPr < lastOperPr) && ch != '(') {
+                            if (priority.isNeedCount()) {
                                 StackHolder stackHolder = makeOperation(stackNumbers, stackOperations, lastOper);
                                 stackNumbers = stackHolder.stackNumbers;
                                 stackOperations = stackHolder.stackOperations;
                                 if (!stackOperations.isEmpty()) {
                                     lastOper = stackOperations.peek();
-                                    lastOperPr = getPriority(lastOper);
+                                    priority = new Priority(lastOper, lexeme);
                                 }
                             }
                         }
-                        while (((curOperPr <= lastOperPr)
+                        while ((priority.isNeedCount()
                                 && !stackNumbers.isEmpty()
-                                && !stackOperations.isEmpty() && (ch != '(')) && (lastOper != '(' && ch == ')'));
+                                && !stackOperations.isEmpty() && (lexeme != "(")) && (lastOper != "(" && lexeme == ")"));
 
                         //убрать открывающ скобку
-                        if (ch == ')') {
+                        if (lexeme == ")") {
                             stackOperations.pop();
                         }
                     }
                     //Внести новую операцию в стек
-                    if (ch != ')') {
-                        stackOperations.push(ch);
+                    if (lexeme != ")") {
+                        stackOperations.push(lexeme);
                     }
                 }
-                if (Character.isDigit(ch)) {
-                    strNumber.append(ch);
-                }
-            }
-
-            if (!strNumber.isEmpty()) {
-                Integer number = Integer.parseInt(strNumber.toString());
-                stackNumbers.push(number);
-                strNumber.setLength(0);
+                else
+                    stackNumbers.push(Integer.parseInt(lexeme));
             }
             while (!stackNumbers.isEmpty() && !stackOperations.isEmpty()) {
-                char lastOper = stackOperations.peek();
+                String lastOper = stackOperations.peek();
                 StackHolder stackHolder = makeOperation(stackNumbers, stackOperations, lastOper);
                 stackNumbers = stackHolder.stackNumbers;
                 stackOperations = stackHolder.stackOperations;
