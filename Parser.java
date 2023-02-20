@@ -1,4 +1,6 @@
-public class Parser implements Collection{
+import java.util.Iterator;
+
+public class Parser implements Iterable{
     private char[] example;
 
     public Parser(char[] example) {
@@ -6,36 +8,29 @@ public class Parser implements Collection{
     }
 
     @Override
-    public Iterator getIterator() {
+    public Iterator iterator() {
         return new LexemeIterator();
     }
 
-    private class LexemeIterator implements Iterator{
+    private class LexemeIterator implements java.util.Iterator {
         private int index;
 
         public boolean hasNext() {
-            if(index < example.length)
-            {
-                return true;
-            }
-            return false;
+            return index < example.length;
         }
 
         public Object next() {
-            if(Character.isDigit((Character)example[index]))
-            {
-                StringBuilder number = new StringBuilder();
-                while(Character.isDigit((Character)example[index])) {
-                    number.append(example[index]);
-                    index++;
+            if (Character.isDigit(example[index])) {
+                    StringBuilder number = new StringBuilder();
+                    while (hasNext() && Character.isDigit(example[index])) {
+                        number.append(example[index]);
+                        index++;
+                    }
+                    return number.toString();
+                } else {
+                    return String.valueOf(example[index++]);
                 }
-                return number.toString();
-            }
-            else
-            {
-                return String.valueOf(example[index++]);
-            }
         }
-    };
+    }
 }
 

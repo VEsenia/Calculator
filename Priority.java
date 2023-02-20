@@ -1,5 +1,3 @@
-import java.util.Stack;
-
 public class Priority {
 
     private String lastOper;
@@ -13,13 +11,11 @@ public class Priority {
     //Вывод приоритета оператора
     private int getPriority(String operator)
     {
-        switch(operator) {
-            case "+", "-" :
-                return 1;
-            case "*","/" :
-                return 2;
-        }
-        return 0;
+        return switch (operator) {
+            case "+", "-" -> 1;
+            case "*", "/" -> 2;
+            default -> 0;
+        };
     }
 
     public boolean isNeedCount()
@@ -27,7 +23,7 @@ public class Priority {
         int lastOperPr = getPriority(lastOper);
         int curOperPr = getPriority(CurOper);
         //если приоритет текущей выше, тогда операцию в стек
-         return ((curOperPr <= lastOperPr) && CurOper != "(");
+         return ((curOperPr <= lastOperPr) && !CurOper.equals("("));
     }
 
 
