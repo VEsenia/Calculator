@@ -11,6 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
 
+        //новая версия
         String example = " ";
         while (!example.equals("")) {
             System.out.println("Введите пример");
