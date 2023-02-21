@@ -13,14 +13,14 @@ public class Counter {
         this.operator = operator;
     }
 
-    public Integer getResult()
+    public Lexeme getResult()
     {
         return switch (operator) {
             case "+" -> sumCommand.execute();
             case "-" -> subCommand.execute();
             case "*" -> multiplyCommand.execute();
             case "/" -> divCommand.execute();
-            default -> 0;
+            default -> null;
         };
     }
 }

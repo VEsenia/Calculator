@@ -1,3 +1,3 @@
 public interface Command {
-    Integer execute();
+    Lexeme execute();
 }

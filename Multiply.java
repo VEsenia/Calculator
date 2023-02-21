@@ -6,7 +6,9 @@ public class Multiply implements Command{
     }
 
     @Override
-    public Integer execute() {
-        return numbers.numb1 * numbers.numb2;
+    public Lexeme execute() {
+        String value = String.valueOf(numbers.numb1 * numbers.numb2);
+        Lexeme lexeme = new Lexeme(TypeLexeme.NUMBER, 0, value);
+        return lexeme;
     }
 }

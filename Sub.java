@@ -6,7 +6,9 @@ public class Sub implements Command{
     }
 
     @Override
-    public Integer execute() {
-        return numbers.numb2 - numbers.numb1;
+    public Lexeme execute() {
+        String value = String.valueOf(numbers.numb2 - numbers.numb1);
+        Lexeme lexeme = new Lexeme(TypeLexeme.NUMBER, 0, value);
+        return lexeme;
     }
 }

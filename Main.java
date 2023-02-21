@@ -1,9 +1,13 @@
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Stack;
 
 public class Main {
+
+    public static boolean isNotEmptyStacks(Stack<Lexeme> stackNumbers, Stack<Lexeme> stackOperations) {
+        return !stackNumbers.isEmpty()
+                && !stackOperations.isEmpty();
+    }
 
     public static void main(String[] args) {
 
@@ -13,68 +17,66 @@ public class Main {
             Scanner in = new Scanner(System.in, StandardCharsets.UTF_8);
             example = in.nextLine();
             if (!example.equals("")) {
-                String[] operators = {"+", "-", "/", "*"};
-                Stack<Integer> stackNumbers = new Stack<Integer>();
-                Stack<String> stackOperations = new Stack<String>();
+                Stack<Lexeme> stackNumbers = new Stack<Lexeme>();
+                Stack<Lexeme> stackOperations = new Stack<Lexeme>();
 
                 example = example.replace(" ", "");
 
                 Parser parser = new Parser(example.toCharArray());
-                for (Object ob : parser) {
-                    String lexeme = (String) ob;
-                    boolean isOperator = Arrays.asList(operators).contains(lexeme);
-                    boolean isOpenBracket = lexeme.equals("(");
-                    boolean isCloseBracket = lexeme.equals(")");
-                    if (isOperator || isOpenBracket || isCloseBracket) {
+                for (Object lexOb : parser) {
+                    Lexeme curLexeme = (Lexeme) lexOb;
+                    TypeLexeme typeLexeme = curLexeme.getType();
+                    if (typeLexeme == typeLexeme.COMMAND || typeLexeme == typeLexeme.BRACKET) {
                         //если приоритет операций одинаковый или приоритет текущей операции ниже
                         //то сначало выполняем действие, которое лежит в стеке
                         //до тех пор, пока в операциях не появится операция приоритетом ниже текущего
                         //или не встретится скобка или конец стека
                         if (!stackOperations.isEmpty()) {
-                            String lastOper = stackOperations.peek();
-                            Priority priority = new Priority(lastOper, lexeme);
-                            boolean isLstOperOpenBracket = lastOper.equals("(");
-                            while ((priority.isNeedCount()
-                                    && !stackNumbers.isEmpty()
-                                    && !stackOperations.isEmpty()
-                                    && !isOpenBracket && !isLstOperOpenBracket
-                                   )
-                                    || (!isLstOperOpenBracket && isCloseBracket)) {
+                            Lexeme lastOperLexeme = stackOperations.peek();
+                            StackHolder stackHolder = new StackHolder(stackNumbers, stackOperations);
+                            while (((!isNotEmptyStacks(stackNumbers, stackOperations)
+                                    && (typeLexeme == TypeLexeme.COMMAND)
+                                    )
+                                    || (typeLexeme == TypeLexeme.BRACKET
+                                       && curLexeme.typeBracket==TypeBracket.CLOSE
+                                       && lastOperLexeme.typeBracket!=TypeBracket.OPEN))
+                                    && stackHolder.wasCount
+                            ) {
                                 //если приоритет текущей выше, тогда операцию в стек
-                                StackHolder stackHolder = new StackHolder(stackNumbers, stackOperations);
-                                stackHolder = stackHolder.makeOperation(lastOper);
+                                //или если текущая закрыв скобка и не встретили открывающую
+                                stackHolder = new StackHolder(stackNumbers, stackOperations);
+                                stackHolder = stackHolder.makeOperation(lastOperLexeme, curLexeme);
                                 stackNumbers = stackHolder.stackNumbers;
                                 stackOperations = stackHolder.stackOperations;
                                 if (!stackOperations.isEmpty()) {
-                                    lastOper = stackOperations.peek();
-                                    isLstOperOpenBracket = lastOper.equals("(");
-                                    priority = new Priority(lastOper, lexeme);
+                                    lastOperLexeme = stackOperations.peek();
                                 }
 
                                 //вытащить открывающуюся скобку из стека, после расчета
-                                if(isLstOperOpenBracket && isCloseBracket)
+                                if (lastOperLexeme.typeBracket == TypeBracket.OPEN
+                                        && curLexeme.typeBracket == TypeBracket.CLOSE)
                                     stackOperations.pop();
                             }
                         }
                         //Внести новую операцию в стек
-                        if (!isCloseBracket) {
-                            stackOperations.push(lexeme);
+                        if (curLexeme.typeBracket != TypeBracket.CLOSE) {
+                            stackOperations.push(curLexeme);
                         }
                     } else {
-                        stackNumbers.push(Integer.parseInt(lexeme));
+                        stackNumbers.push(curLexeme);
                     }
                 }
 
                 //обработать оставшиеся в стеке операции
-                while (!stackNumbers.isEmpty() && !stackOperations.isEmpty()) {
-                    String lastOper = stackOperations.peek();
+                while (!isNotEmptyStacks(stackNumbers, stackOperations)) {
+                    Lexeme lastOperLexeme = stackOperations.peek();
                     StackHolder stackHolder = new StackHolder(stackNumbers, stackOperations);
-                    stackHolder = stackHolder.makeOperation(lastOper);
+                    stackHolder = stackHolder.makeOperation(lastOperLexeme);
                     stackNumbers = stackHolder.stackNumbers;
                     stackOperations = stackHolder.stackOperations;
                 }
-                int res = stackNumbers.peek();
-                System.out.println("Ответ: " + res);
+                Lexeme resLexeme = stackNumbers.peek();
+                System.out.println("Ответ: " + resLexeme.getValue());
             }
         }
     }

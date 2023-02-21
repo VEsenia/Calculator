@@ -6,7 +6,9 @@ class SubTest {
 
     @Test
     void execute() {
-        Sub subCommand = new Sub(new Numbers(2,8));
-        assertEquals(6, subCommand.execute());
+        Numbers numb = new Numbers(2,5);
+        Sub subCommand = new Sub(numb);
+        Lexeme lexemeNeed = new Lexeme(TypeLexeme.NUMBER, 0, "3");
+        assertEquals("3", subCommand.execute().getValue());
     }
 }

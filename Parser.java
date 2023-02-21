@@ -19,17 +19,41 @@ public class Parser implements Iterable{
             return index < example.length;
         }
 
-        public Object next() {
+        private int getPriority(String command)
+        {
+            return switch (command) {
+                case "+", "-" -> 1;
+                case "*", "/" -> 2;
+                case "(",")" -> -1;
+                default -> 0;
+            };
+        }
+
+        private TypeLexeme getTypeLexeme(String value)
+        {
+            return switch (value) {
+                case "+", "-","*", "/"  -> TypeLexeme.COMMAND;
+                case "(",")" -> TypeLexeme.BRACKET;
+                default -> null;
+            };
+        }
+
+        public Lexeme next() {
             if (Character.isDigit(example[index])) {
-                    StringBuilder number = new StringBuilder();
-                    while (hasNext() && Character.isDigit(example[index])) {
-                        number.append(example[index]);
-                        index++;
-                    }
-                    return number.toString();
-                } else {
-                    return String.valueOf(example[index++]);
+                StringBuilder number = new StringBuilder();
+                while (hasNext() && Character.isDigit(example[index])) {
+                    number.append(example[index]);
+                    index++;
                 }
+                Lexeme lexeme = new Lexeme(TypeLexeme.NUMBER, 0, number.toString());
+                return lexeme;
+            } else {
+                String value = String.valueOf(example[index++]);
+                Lexeme lexeme = new Lexeme(getTypeLexeme(value),
+                        getPriority(value),
+                        value);
+                return lexeme;
+            }
         }
     }
 }
