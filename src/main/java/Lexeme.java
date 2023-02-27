@@ -1,3 +1,5 @@
+package src.main.java;
+
 public class Lexeme {
     private TypeLexeme type;
     private Integer priority;

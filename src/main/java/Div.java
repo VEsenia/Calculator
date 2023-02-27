@@ -1,4 +1,6 @@
-public class Div implements Command{
+package src.main.java;
+
+public class Div implements Command {
     private Numbers numbers;
 
     public Div(Numbers numbers) {

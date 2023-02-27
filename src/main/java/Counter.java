@@ -1,3 +1,5 @@
+package src.main.java;
+
 public class Counter {
     private String operator;
     private Command sumCommand;
