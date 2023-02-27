@@ -1,3 +1,5 @@
+package src.main.java;
+
 public class Numbers {
     public Integer numb1;
     public Integer numb2;

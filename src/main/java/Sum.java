@@ -1,4 +1,6 @@
-public class Sum implements Command{
+package src.main.java;
+
+public class Sum implements Command {
     private Numbers numbers;
 
     public Sum(Numbers numbers) {
