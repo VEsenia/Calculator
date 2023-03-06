@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.Stack;
 
+//New branch
 public class Main {
 
     public static boolean isNotEmptyStacks(Stack<Lexeme> stackNumbers, Stack<Lexeme> stackOperations) {
